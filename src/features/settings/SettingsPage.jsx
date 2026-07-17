@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Modal } from '../../components/common/Modal'
+import { getTheme, themes } from '../../constants/themes'
 import { gid } from '../../utils/id'
 
 const tabs = [
   ['biz', 'Mi Negocio'],
+  ['apariencia', 'Apariencia'],
   ['servicio', 'Servicios'],
   ['producto', 'Productos'],
   ['paquete', 'Paquetes'],
@@ -19,7 +21,6 @@ export function SettingsPage({ account, updateAccount, notify }) {
     businessPhone: account.businessPhone || '',
     businessEmail: account.businessEmail || '',
     businessAddress: account.businessAddress || '',
-    businessColor: account.businessColor || '#E06C4F',
   })
   const [itemModalOpen, setItemModalOpen] = useState(false)
   const [itemDraft, setItemDraft] = useState(itemSeed)
@@ -53,6 +54,35 @@ export function SettingsPage({ account, updateAccount, notify }) {
     notify(itemDraft.id ? 'Elemento actualizado' : 'Elemento creado')
     setItemModalOpen(false)
     setItemDraft(itemSeed)
+  }
+
+  const activeTheme = getTheme(account.businessTheme)
+  const colors = account.businessColors || {}
+  const accentValue = account.businessColor || activeTheme.vars['--accent']
+  const accent2Value = colors.accent2 || activeTheme.vars['--accent2']
+  const bgValue = colors.bg || activeTheme.vars['--bg']
+
+  const selectTemplate = (theme) => {
+    updateAccount((prev) => ({
+      ...prev,
+      businessTheme: theme.id,
+      businessColor: theme.vars['--accent'],
+      businessColors: { accent2: theme.vars['--accent2'], bg: theme.vars['--bg'] },
+    }))
+    notify(`Plantilla "${theme.name}" aplicada`)
+  }
+
+  const setAccent = (value) => updateAccount((prev) => ({ ...prev, businessColor: value }))
+  const setColorOverride = (key, value) =>
+    updateAccount((prev) => ({ ...prev, businessColors: { ...(prev.businessColors || {}), [key]: value } }))
+
+  const resetToTemplate = () => {
+    updateAccount((prev) => ({
+      ...prev,
+      businessColor: activeTheme.vars['--accent'],
+      businessColors: { accent2: activeTheme.vars['--accent2'], bg: activeTheme.vars['--bg'] },
+    }))
+    notify('Colores restablecidos a la plantilla', 'i')
   }
 
   const exportData = () => {
@@ -111,16 +141,78 @@ export function SettingsPage({ account, updateAccount, notify }) {
                 onChange={(event) => setBusinessDraft((prev) => ({ ...prev, businessAddress: event.target.value }))}
               ></textarea>
             </div>
-            <div className='fg'>
-              <label>Color principal</label>
-              <input
-                type='color'
-                value={businessDraft.businessColor}
-                onChange={(event) => setBusinessDraft((prev) => ({ ...prev, businessColor: event.target.value }))}
-              />
-            </div>
             <button className='btn btn-p' type='button' onClick={persistBusiness}>
               Guardar Cambios
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tab === 'apariencia' && (
+        <div className='set-grid'>
+          <div className='set-card'>
+            <h3>Plantilla de diseño</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 12 }}>
+              {themes.map((theme) => {
+                const isActive = theme.id === account.businessTheme
+                return (
+                  <button
+                    key={theme.id}
+                    type='button'
+                    onClick={() => selectTemplate(theme)}
+                    style={{
+                      textAlign: 'left',
+                      background: 'var(--bg2)',
+                      border: `2px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                      borderRadius: 10,
+                      padding: 12,
+                      cursor: 'pointer',
+                      color: 'var(--fg)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
+                      {['--bg', '--accent', '--accent2'].map((key) => (
+                        <span
+                          key={key}
+                          style={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: 6,
+                            background: theme.vars[key],
+                            border: '1px solid var(--border)',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {theme.name}
+                      {isActive && <i className='fa-solid fa-circle-check' style={{ color: 'var(--accent)' }}></i>}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className='set-card'>
+            <h3>Colores personalizados</h3>
+            <p style={{ fontSize: 12, color: 'var(--fg2)', marginBottom: 14 }}>
+              Ajusta los colores sobre la plantilla seleccionada. Los cambios se aplican al instante.
+            </p>
+            <div className='fg'>
+              <label>Acento principal</label>
+              <input type='color' value={accentValue} onChange={(event) => setAccent(event.target.value)} />
+            </div>
+            <div className='fg'>
+              <label>Acento secundario</label>
+              <input type='color' value={accent2Value} onChange={(event) => setColorOverride('accent2', event.target.value)} />
+            </div>
+            <div className='fg'>
+              <label>Fondo</label>
+              <input type='color' value={bgValue} onChange={(event) => setColorOverride('bg', event.target.value)} />
+            </div>
+            <button className='btn btn-s' type='button' onClick={resetToTemplate}>
+              Restablecer a la plantilla
             </button>
           </div>
         </div>
