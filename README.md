@@ -5,7 +5,7 @@ Aplicación de gestión para estética canina con:
 - Base de datos: MySQL
 
 ## Requisitos
-- Node.js 18+ (recomendado 20+)
+- Node.js 20.19+ o 22.12+ (requerido por Vite 8 y oxlint)
 - MySQL 8+ ejecutándose localmente
 
 ## 1) Instalar dependencias
@@ -55,6 +55,7 @@ npm run dev:backend    # solo backend (nodemon)
 npm run start:backend  # backend en modo normal
 npm run lint
 npm run build
+npm test               # ejecuta las pruebas (node --test)
 ```
 
 ## Endpoints principales
