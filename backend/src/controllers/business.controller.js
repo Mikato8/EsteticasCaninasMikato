@@ -30,7 +30,7 @@ export async function getBusinessDataController(req, res, next) {
     }
 
     const users = await query(
-      'SELECT id, business_id, name, username, password, role, created_at FROM users WHERE business_id = ? ORDER BY created_at ASC',
+      'SELECT id, business_id, name, username, role, created_at FROM users WHERE business_id = ? ORDER BY created_at ASC',
       [businessId],
     )
     const [data] = await query('SELECT clients, services, products, packages, appointments, sales FROM business_data WHERE business_id = ? LIMIT 1', [
@@ -52,7 +52,7 @@ export async function getBusinessDataController(req, res, next) {
           business_id: user.business_id,
           name: user.name,
           username: user.username,
-          password: user.password,
+          password: '',
           role: user.role,
           createdAt: user.created_at,
         })),
