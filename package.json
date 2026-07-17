@@ -10,7 +10,11 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "start:backend": "node backend/src/server.js"
+    "start:backend": "node backend/src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   },
   "dependencies": {
     "cors": "^2.8.6",
