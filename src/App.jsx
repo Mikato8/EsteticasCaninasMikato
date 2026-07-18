@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LoginScreen } from './components/auth/LoginScreen'
 import { ToastContainer } from './components/common/ToastContainer'
 import { Sidebar } from './components/layout/Sidebar'
@@ -16,7 +16,7 @@ import { useTheme } from './hooks/useTheme'
 import { gid } from './utils/id'
 
 function App() {
-  const { currentAccount, currentUser, activePage, setActivePage, login, registerBusiness, logout, patchCurrentAccount } = useApp()
+  const { currentAccount, currentUser, activePage, setActivePage, login, registerBusiness, logout, patchCurrentAccount, saveError, clearSaveError } = useApp()
   const [toasts, setToasts] = useState([])
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const clock = useClock('es-MX')
@@ -34,6 +34,16 @@ function App() {
       setToasts((prev) => prev.filter((item) => item.id !== id))
     }, 3000)
   }
+
+  useEffect(() => {
+    if (!saveError) return
+    const id = gid()
+    setToasts((prev) => [...prev, { id, message: saveError, type: 'e' }])
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((item) => item.id !== id))
+    }, 3000)
+    clearSaveError()
+  }, [saveError, clearSaveError])
 
   const handleLogin = async ({ username, password }) => {
     const result = await login(username, password)

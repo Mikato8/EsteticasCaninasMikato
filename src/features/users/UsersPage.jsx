@@ -23,6 +23,12 @@ export function UsersPage({ account, currentUser, updateAccount, notify }) {
       notify('Contraseña mínimo 4 caracteres', 'e')
       return
     }
+    const username = form.username.trim().toLowerCase()
+    const clash = (account.users || []).some((item) => item.id !== form.id && (item.username || '').trim().toLowerCase() === username)
+    if (clash) {
+      notify('Ese usuario ya existe en este negocio', 'e')
+      return
+    }
     updateAccount((prev) => {
       const list = [...(prev.users || [])]
       const payload = {
