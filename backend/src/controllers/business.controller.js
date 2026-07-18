@@ -18,7 +18,7 @@ const toMysqlDateTime = (value) => {
 export async function getBusinessDataController(req, res, next) {
   try {
     const { businessId } = req.params
-    const [business] = await query('SELECT id, name, phone, email, address, color, language FROM businesses WHERE id = ? LIMIT 1', [
+    const [business] = await query('SELECT id, name, phone, email, address, color, theme, colors, language FROM businesses WHERE id = ? LIMIT 1', [
       businessId,
     ])
 
@@ -46,6 +46,8 @@ export async function getBusinessDataController(req, res, next) {
         businessEmail: business.email || '',
         businessAddress: business.address || '',
         businessColor: business.color || '#E06C4F',
+        businessTheme: business.theme || 'coral',
+        businessColors: parseJsonColumn(business.colors, {}),
         language: business.language || 'es',
         users: users.map((user) => ({
           id: user.id,
@@ -79,7 +81,7 @@ export async function saveBusinessDataController(req, res, next) {
 
     await connection.execute(
       `UPDATE businesses
-       SET name = ?, phone = ?, email = ?, address = ?, color = ?, language = ?
+       SET name = ?, phone = ?, email = ?, address = ?, color = ?, theme = ?, colors = ?, language = ?
        WHERE id = ?`,
       [
         account.businessName || 'Mi Negocio',
@@ -87,6 +89,8 @@ export async function saveBusinessDataController(req, res, next) {
         account.businessEmail || '',
         account.businessAddress || '',
         account.businessColor || '#E06C4F',
+        account.businessTheme || 'coral',
+        JSON.stringify(account.businessColors || {}),
         account.language || 'es',
         businessId,
       ],

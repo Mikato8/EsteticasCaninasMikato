@@ -66,9 +66,9 @@ export async function registerController(req, res, next) {
 
     await connection.beginTransaction()
     await connection.execute(
-      `INSERT INTO businesses (id, name, phone, email, address, color, language)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [businessId, businessName, businessPhone || '', businessEmail || '', businessAddress || '', '#E06C4F', 'es'],
+      `INSERT INTO businesses (id, name, phone, email, address, color, theme, colors, language)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [businessId, businessName, businessPhone || '', businessEmail || '', businessAddress || '', '#E06C4F', 'coral', JSON.stringify({}), 'es'],
     )
     await connection.execute(
       `INSERT INTO users (id, business_id, name, username, password, role)

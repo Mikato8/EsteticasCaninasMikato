@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS businesses (
   email VARCHAR(120) NULL,
   address VARCHAR(255) NULL,
   color VARCHAR(20) DEFAULT '#E06C4F',
+  theme VARCHAR(30) NOT NULL DEFAULT 'coral',
+  colors JSON NULL,
   language VARCHAR(5) DEFAULT 'es',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

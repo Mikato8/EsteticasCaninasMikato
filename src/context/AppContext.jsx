@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_COLOR } from '../constants/defaults'
+import { DEFAULT_THEME_ID } from '../constants/themes'
 import { apiGet, apiPost, apiPut } from '../services/api'
 import { clearSession, loadSession, saveSession } from '../services/storage'
 import { AppContext } from './context'
@@ -8,6 +9,8 @@ const normalizeAccount = (acc) => ({
   ...acc,
   language: acc.language || 'es',
   businessColor: acc.businessColor || DEFAULT_COLOR,
+  businessTheme: acc.businessTheme || DEFAULT_THEME_ID,
+  businessColors: acc.businessColors || {},
   businessLogo: acc.businessLogo || '',
   clients: acc.clients || [],
   users: acc.users || [],

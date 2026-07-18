@@ -12,6 +12,7 @@ import { SalesPage } from './features/sales/SalesPage'
 import { SettingsPage } from './features/settings/SettingsPage'
 import { UsersPage } from './features/users/UsersPage'
 import { useClock } from './hooks/useClock'
+import { useTheme } from './hooks/useTheme'
 import { gid } from './utils/id'
 
 function App() {
@@ -19,6 +20,12 @@ function App() {
   const [toasts, setToasts] = useState([])
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const clock = useClock('es-MX')
+
+  useTheme(currentAccount?.businessTheme, {
+    accent: currentAccount?.businessColor,
+    accent2: currentAccount?.businessColors?.accent2,
+    bg: currentAccount?.businessColors?.bg,
+  })
 
   const notify = (message, type = 's') => {
     const id = gid()

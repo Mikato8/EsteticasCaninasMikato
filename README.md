@@ -36,6 +36,15 @@ Opción recomendada (sin cliente mysql instalado):
 node --input-type=module -e "import fs from 'node:fs'; import mysql from 'mysql2/promise'; import dotenv from 'dotenv'; dotenv.config({ path: 'backend/.env' }); const sql = fs.readFileSync('backend/sql/schema.sql', 'utf8'); const conn = await mysql.createConnection({ host: process.env.MYSQL_HOST, port: Number(process.env.MYSQL_PORT), user: process.env.MYSQL_USER, password: process.env.MYSQL_PASSWORD, database: process.env.MYSQL_DATABASE, multipleStatements: true }); await conn.query(sql); await conn.end(); console.log('SCHEMA_UPDATED');"
 ```
 
+### Migración: plantillas de diseño
+Si ya tenías la base creada antes de esta versión, agrega las columnas de apariencia a `businesses`:
+```sql path=null start=null
+ALTER TABLE businesses
+  ADD COLUMN theme VARCHAR(30) NOT NULL DEFAULT 'coral',
+  ADD COLUMN colors JSON NULL;
+```
+(En bases nuevas ya vienen incluidas en `backend/sql/schema.sql`.)
+
 ## 4) Ejecutar el proyecto
 Levanta frontend y backend al mismo tiempo:
 ```bash path=null start=null
