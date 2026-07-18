@@ -23,6 +23,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);min-h
 .fg label{display:block;font-size:12px;font-weight:600;color:var(--fg2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
 .fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--fg);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.password-field{position:relative}
+.password-field input{padding-right:42px}
+.password-toggle{position:absolute;top:0;right:0;height:100%;width:40px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--fg2);cursor:pointer;font-size:14px}
+.password-toggle:hover{color:var(--accent)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.4px}
 .btn-p{background:linear-gradient(135deg,var(--accent),#f0a030);color:#fff;width:100%}
 .btn-s{background:var(--card2);color:var(--fg);border:1px solid var(--border)}

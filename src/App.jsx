@@ -16,7 +16,7 @@ import { useTheme } from './hooks/useTheme'
 import { gid } from './utils/id'
 
 function App() {
-  const { currentAccount, currentUser, activePage, setActivePage, login, registerBusiness, logout, patchCurrentAccount, saveError, clearSaveError } = useApp()
+  const { currentAccount, currentUser, activePage, setActivePage, login, registerBusiness, recoverPassword, logout, patchCurrentAccount, saveError, clearSaveError } = useApp()
   const [toasts, setToasts] = useState([])
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const clock = useClock('es-MX')
@@ -55,6 +55,11 @@ function App() {
     if (!result.ok) notify(result.message, 'e')
     else notify('Negocio creado correctamente')
   }
+  const handleRecover = async (payload) => {
+    const result = await recoverPassword(payload)
+    if (!result.ok) notify(result.message || 'No se pudo recuperar la cuenta', 'e')
+    else notify('Contraseña actualizada, ya puedes iniciar sesión')
+  }
 
   const handleLogout = () => {
     logout()
@@ -65,7 +70,7 @@ function App() {
     return (
       <>
         <ToastContainer toasts={toasts} />
-        <LoginScreen onLogin={handleLogin} onRegister={handleRegister} />
+        <LoginScreen onLogin={handleLogin} onRegister={handleRegister} onRecover={handleRecover} />
       </>
     )
   }
