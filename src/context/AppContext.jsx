@@ -26,6 +26,7 @@ export function AppProvider({ children }) {
   const [session, setSession] = useState(() => loadSession())
   const [currentAccount, setCurrentAccount] = useState(null)
   const [currentUser, setCurrentUser] = useState(null)
+  const [saveError, setSaveError] = useState(null)
 
   const hydrateAccount = async (businessId) => {
     const response = await apiGet(`/api/businesses/${businessId}/data`)
@@ -55,9 +56,18 @@ export function AppProvider({ children }) {
       if (!prev) return prev
       const next = normalizeAccount(typeof updater === 'function' ? updater(prev) : { ...prev, ...updater })
 
-      apiPut(`/api/businesses/${prev.id}/data`, next).catch((error) => {
-        console.error('Error guardando datos en backend:', error)
-      })
+      apiPut(`/api/businesses/${prev.id}/data`, next)
+        .then((response) => {
+          if (!response?.ok) {
+            setSaveError(response?.message || 'No se pudieron guardar los cambios')
+            hydrateAccount(prev.id).catch(() => {})
+          }
+        })
+        .catch((error) => {
+          console.error('Error guardando datos en backend:', error)
+          setSaveError('No se pudieron guardar los cambios')
+          hydrateAccount(prev.id).catch(() => {})
+        })
 
       return next
     })
@@ -118,8 +128,10 @@ export function AppProvider({ children }) {
       registerBusiness,
       logout,
       patchCurrentAccount,
+      saveError,
+      clearSaveError: () => setSaveError(null),
     }),
-    [activePage, currentAccount, currentUser],
+    [activePage, currentAccount, currentUser, saveError],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

@@ -1,4 +1,5 @@
 import pool, { query } from '../config/db.js'
+import { findDuplicateUsernames, normalizeUsername } from '../utils/users.js'
 
 const parseJsonColumn = (value, fallback = []) => {
   if (Array.isArray(value)) return value
@@ -120,6 +121,25 @@ export async function saveBusinessDataController(req, res, next) {
     const users = account.users || []
     const userIds = users.map((user) => user.id).filter(Boolean)
     if (users.length) {
+      const duplicates = findDuplicateUsernames(users)
+      if (duplicates.length) {
+        await connection.rollback()
+        return res.status(409).json({ ok: false, message: `El usuario "${duplicates[0]}" está duplicado` })
+      }
+
+      const usernames = users.map((user) => normalizeUsername(user.username)).filter(Boolean)
+      if (usernames.length) {
+        const placeholders = usernames.map(() => '?').join(', ')
+        const [conflicts] = await connection.query(
+          `SELECT username FROM users WHERE username IN (${placeholders}) AND business_id <> ? LIMIT 1`,
+          [...usernames, businessId],
+        )
+        if (conflicts.length) {
+          await connection.rollback()
+          return res.status(409).json({ ok: false, message: `El usuario "${conflicts[0].username}" ya está en uso en otro negocio` })
+        }
+      }
+
       if (userIds.length) {
         const placeholders = userIds.map(() => '?').join(', ')
         await connection.execute(`DELETE FROM users WHERE business_id = ? AND id NOT IN (${placeholders})`, [businessId, ...userIds])
