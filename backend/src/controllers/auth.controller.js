@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import pool, { query } from '../config/db.js'
 import { defaultDataSnapshot } from '../utils/default-data.js'
+import { normalizeEmail, validateRecoverPayload } from '../utils/recovery.js'
 
 export async function loginController(req, res, next) {
   try {
@@ -105,5 +106,38 @@ export async function registerController(req, res, next) {
     next(error)
   } finally {
     connection.release()
+  }
+}
+
+export async function recoverController(req, res, next) {
+  try {
+    const { email, username, password } = req.body
+
+    const validation = validateRecoverPayload({ email, username, password })
+    if (!validation.ok) {
+      return res.status(400).json({ ok: false, message: validation.message })
+    }
+
+    const rows = await query(
+      `SELECT u.id
+       FROM users u
+       JOIN businesses b ON b.id = u.business_id
+       WHERE u.username = ? AND LOWER(b.email) = ?
+       LIMIT 1`,
+      [username, normalizeEmail(email)],
+    )
+
+    if (!rows.length) {
+      return res.status(404).json({
+        ok: false,
+        message: 'No encontramos una cuenta con ese usuario y e-mail',
+      })
+    }
+
+    await query('UPDATE users SET password = ? WHERE id = ?', [password, rows[0].id])
+
+    return res.json({ ok: true })
+  } catch (error) {
+    next(error)
   }
 }

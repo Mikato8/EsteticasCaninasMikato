@@ -111,6 +111,10 @@ export function AppProvider({ children }) {
     return { ok: true, user: response.user }
   }
 
+  const recoverPassword = async ({ email, username, password }) => {
+    return apiPost('/api/auth/recover', { email, username, password })
+  }
+
   const logout = () => {
     setCurrentAccount(null)
     setCurrentUser(null)
@@ -126,6 +130,7 @@ export function AppProvider({ children }) {
       setActivePage,
       login,
       registerBusiness,
+      recoverPassword,
       logout,
       patchCurrentAccount,
       saveError,
