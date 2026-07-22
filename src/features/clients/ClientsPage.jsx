@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Modal } from '../../components/common/Modal'
+import { BreedSearch } from '../../components/common/BreedSearch'
+import { formatPeso, formatVida } from '../../constants/breeds'
 import { gid } from '../../utils/id'
 
 const emptyClient = {
@@ -7,6 +9,7 @@ const emptyClient = {
   name: '',
   tel: '',
   email: '',
+  especie: 'perro',
   mascota: '',
   raza: '',
   tamano: 'Mediano',
@@ -18,11 +21,12 @@ export function ClientsPage({ account, updateAccount, notify }) {
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyClient)
+  const [breedInfo, setBreedInfo] = useState(null)
 
   const rows = useMemo(
     () =>
       (account.clients || []).filter((client) => {
-        const text = `${client.name} ${client.mascota} ${client.raza}`.toLowerCase()
+        const text = `${client.name} ${client.mascota} ${client.raza} ${client.especie || ''}`.toLowerCase()
         return !search || text.includes(search.toLowerCase())
       }),
     [account.clients, search],
@@ -53,7 +57,15 @@ export function ClientsPage({ account, updateAccount, notify }) {
           <h3>Clientes y Mascotas</h3>
           <div className='tf'>
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder='Buscar...' />
-            <button className='btn btn-p btn-sm' type='button' onClick={() => setModalOpen(true)}>
+            <button
+              className='btn btn-p btn-sm'
+              type='button'
+              onClick={() => {
+                setForm(emptyClient)
+                setBreedInfo(null)
+                setModalOpen(true)
+              }}
+            >
               <i className='fa-solid fa-plus'></i> Nuevo
             </button>
           </div>
@@ -84,7 +96,8 @@ export function ClientsPage({ account, updateAccount, notify }) {
                         className='btn-icon'
                         type='button'
                         onClick={() => {
-                          setForm(client)
+                          setForm({ ...emptyClient, ...client })
+                          setBreedInfo(null)
                           setModalOpen(true)
                         }}
                       >
@@ -130,13 +143,39 @@ export function ClientsPage({ account, updateAccount, notify }) {
           </div>
           <div className='form-row'>
             <div className='fg'>
+              <label>Especie</label>
+              <select
+                value={form.especie}
+                onChange={(event) => setForm((prev) => ({ ...prev, especie: event.target.value }))}
+              >
+                <option value='perro'>Perro</option>
+                <option value='gato'>Gato</option>
+              </select>
+            </div>
+            <div className='fg'>
               <label>Mascota</label>
               <input value={form.mascota} onChange={(event) => setForm((prev) => ({ ...prev, mascota: event.target.value }))} />
             </div>
-            <div className='fg'>
-              <label>Raza</label>
-              <input value={form.raza} onChange={(event) => setForm((prev) => ({ ...prev, raza: event.target.value }))} />
-            </div>
+          </div>
+          <div className='fg'>
+            <label>Raza</label>
+            <BreedSearch
+              value={form.raza}
+              especie={form.especie}
+              onChange={(raza) => {
+                setForm((prev) => ({ ...prev, raza }))
+                setBreedInfo(null)
+              }}
+              onSelect={(breed) => {
+                setForm((prev) => ({ ...prev, raza: breed.nombre, especie: breed.especie, tamano: breed.tamano }))
+                setBreedInfo(breed)
+              }}
+            />
+            {breedInfo && (
+              <p className='breed-hint'>
+                <i className='fa-solid fa-circle-info'></i> {breedInfo.tamano} · Peso típico {formatPeso(breedInfo)} · Vida {formatVida(breedInfo)}
+              </p>
+            )}
           </div>
           <div className='form-row'>
             <div className='fg'>
